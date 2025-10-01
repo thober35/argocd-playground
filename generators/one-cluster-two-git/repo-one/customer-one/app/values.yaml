@@ -1,0 +1,4 @@
+gitOneName: test
+repoTwo:
+  revision: main
+  repoURL: https://github.com/thober35/argocd-playground.git

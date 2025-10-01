@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: nginx
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - matrix:
+        generators:
+          - clusters: {}
+          - matrix:
+              generators:
+                - git:
+                    repoURL: https://github.com/thober35/argocd-playground.git
+                    revision: main
+                    files:
+                      - path: generators/one-cluster-two-git/repo-one/*/app/values.yaml
+                    requeueAfterSeconds: 30
+                    pathParamPrefix: gitOne
+
+                - git:
+                    repoURL: https://github.com/thober35/argocd-playground.git
+                    revision: "{{ repoTwo.revision }}"
+                    files:
+                      - path: generators/one-cluster-two-git/repo-two/app/values.yaml
+                    pathParamPrefix: gitTwo
+
+  template:
+    metadata:
+      name: "{{ .gitOneName }}-nginx"
+    spec:
+      project: default
+      destination:
+        server: "{{ .server }}"
+        namespace: "{{ .gitOneName }}-nginx"
+      sources:
+
+        - repoURL: https://kubernetes.github.io/ingress-nginx
+          targetRevision: master
+          chart: ingress-nginx
+
+      syncPolicy:
+        automated: { prune: true, selfHeal: true }
+        syncOptions: [ CreateNamespace=true ]
