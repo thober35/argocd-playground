@@ -21,7 +21,7 @@ spec:
 
                 - git:
                     repoURL: https://github.com/thober35/argocd-playground.git
-                    revision: "{{ repoTwo.revision }}"
+                    revision: "{{ .repoTwo.revision }}"
                     files:
                       - path: generators/one-cluster-two-git/repo-two/app/values.yaml
                     pathParamPrefix: gitTwo
